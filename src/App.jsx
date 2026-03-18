@@ -275,7 +275,7 @@
 //             className="file-input"
 //           />
 
-//           <button onClick={handleUpload} className="upload-btn">
+//           <button onClick={handleUpload} className="upload- btn">
 //             Upload
 //           </button>
 
@@ -294,13 +294,12 @@
 
 // export default App;
 
-
-
 import { useState } from "react";
 import axios from "axios";
 import "./App.css";
 
 function App() {
+
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
   const [downloadUrl, setDownloadUrl] = useState("");
@@ -310,8 +309,9 @@ function App() {
   };
 
   const handleUpload = async () => {
+
     if (!file) {
-      alert("Please select a file first!");
+      alert("Please select an audio file first!");
       return;
     }
 
@@ -319,6 +319,7 @@ function App() {
     formData.append("audio", file);
 
     try {
+
       const response = await axios.post(
         "http://127.0.0.1:5000/upload",
         formData,
@@ -327,41 +328,88 @@ function App() {
 
       setMessage(response.data.message);
       setDownloadUrl(`http://127.0.0.1:5000/uploads/${response.data.file}`);
+
     } catch (error) {
-      setMessage("Upload failed!");
+
+      if (error.response) {
+        setMessage(error.response.data.error);
+        console.log(error.response.data.trace);
+      } else {
+        setMessage("Server error");
+      }
+
     }
+
   };
 
   return (
     <div className="app-container">
+
       <h1 className="title">Audio Enhancer</h1>
 
-      <div className="content">
-        <div className="upload-container">
-          <label className="file-box">
-            <input
-              type="file"
-              accept="audio/*"
-              onChange={handleFileChange}
-            />
-            <span className="file-text">
-              {file ? file.name : "Click to choose an audio file"}
-            </span>
-          </label>
+      <p className="subtitle">
+        Clean background noise and improve recording clarity
+      </p>
 
-          <button onClick={handleUpload} className="upload-btn">
-            Upload
-          </button>
+      <div className="upload-container">
 
-          {message && <div className="message">{message}</div>}
+        <label className="file-box">
 
-          {downloadUrl && (
-            <a href={downloadUrl} download className="download-link">
+          <input
+            type="file"
+            accept="audio/*"
+            onChange={handleFileChange}
+          />
+
+          <div className="upload-text">
+
+            <span className="upload-icon">🎧</span>
+
+            <p className="upload-main">
+              Select an audio file
+            </p>
+
+            <p className="upload-sub">
+              Supported formats: WAV • MP3 • M4A
+            </p>
+
+          </div>
+
+        </label>
+
+        {file && (
+          <p className="selected-file">
+            Selected file: <span>{file.name}</span>
+          </p>
+        )}
+
+        <button
+          className="upload-btn"
+          onClick={handleUpload}
+        >
+          Enhance Audio
+        </button>
+
+        {message && <p className="message">{message}</p>}
+
+        {downloadUrl && (
+          <div className="result">
+
+            <audio controls src={downloadUrl}></audio>
+
+            <a
+              href={downloadUrl}
+              download
+              className="download-link"
+            >
               Download Enhanced Audio
             </a>
-          )}
-        </div>
+
+          </div>
+        )}
+
       </div>
+
     </div>
   );
 }
