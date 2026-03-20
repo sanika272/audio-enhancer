@@ -624,6 +624,152 @@
 #     app.run(debug=True)
 
 
+
+
+# from flask import Flask, request, jsonify, send_from_directory
+# from flask_cors import CORS
+# from pydub import AudioSegment
+# from pydub.effects import normalize
+# from pydub.utils import which
+# import noisereduce as nr
+# import numpy as np
+# import soundfile as sf
+# import os
+# import uuid
+# import traceback
+
+# # configure ffmpeg for pydub
+# AudioSegment.converter = which("ffmpeg")
+# AudioSegment.ffprobe = which("ffprobe")
+
+# app = Flask(__name__)
+# CORS(app)
+
+# UPLOAD_FOLDER = "uploads"
+# os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+
+# @app.route("/")
+# def home():
+#     return "Backend Running Successfully!"
+
+
+# @app.route("/upload", methods=["POST"])
+# def upload_file():
+
+#     if "audio" not in request.files:
+#         return jsonify({"error": "No file uploaded"}), 400
+
+#     file = request.files["audio"]
+
+#     if file.filename == "":
+#         return jsonify({"error": "Empty filename"}), 400
+
+#     try:
+#         # save uploaded file
+#         raw_filename = f"{uuid.uuid4().hex}_{file.filename}"
+#         raw_path = os.path.join(UPLOAD_FOLDER, raw_filename)
+
+#         file.save(raw_path)
+#         print("Uploaded:", raw_path)
+
+#         # load audio
+#         audio = AudioSegment.from_file(raw_path)
+
+#         # convert to mono + correct sample rate
+#         audio = audio.set_channels(1)
+#         audio = audio.set_frame_rate(48000)
+
+#         # normalize volume
+#         audio = normalize(audio)
+
+#         # temporary wav file
+#         temp_input = os.path.join(UPLOAD_FOLDER, f"in_{uuid.uuid4().hex}.wav")
+
+#         audio.export(
+#             temp_input,
+#             format="wav",
+#             parameters=["-acodec", "pcm_s16le"]
+#         )
+
+#         # read waveform
+#         data, rate = sf.read(temp_input)
+
+#         # stronger noise reduction
+#         reduced_noise = nr.reduce_noise(
+#             y=data,
+#             sr=rate,
+#             prop_decrease=1.0
+#         )
+
+#         temp_output = os.path.join(UPLOAD_FOLDER, f"clean_{uuid.uuid4().hex}.wav")
+
+#         sf.write(temp_output, reduced_noise, rate)
+
+#         # load cleaned audio
+#         enhanced_audio = AudioSegment.from_wav(temp_output)
+
+#         # speech frequency filters
+#         enhanced_audio = enhanced_audio.high_pass_filter(100)
+#         enhanced_audio = enhanced_audio.low_pass_filter(7500)
+
+#         # dynamic compression
+#         enhanced_audio = enhanced_audio.compress_dynamic_range(
+#             threshold=-20.0,
+#             ratio=4.0
+#         )
+
+#         # normalize loudness
+#         enhanced_audio = normalize(enhanced_audio)
+
+#         # save final output
+#         output_filename = f"enhanced_{uuid.uuid4().hex}.wav"
+#         output_path = os.path.join(UPLOAD_FOLDER, output_filename)
+
+#         enhanced_audio.export(output_path, format="wav")
+
+#         # cleanup
+#         if os.path.exists(temp_input):
+#             os.remove(temp_input)
+
+#         if os.path.exists(temp_output):
+#             os.remove(temp_output)
+
+#         return jsonify({
+#             "message": "Audio enhanced successfully!",
+#             "file": output_filename
+#         })
+
+#     except Exception as e:
+
+#         error = traceback.format_exc()
+#         print(error)
+
+#         return jsonify({
+#             "error": str(e),
+#             "trace": error
+#         }), 500
+
+
+# @app.route("/uploads/<filename>")
+# def download_file(filename):
+#     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from pydub import AudioSegment
@@ -755,4 +901,5 @@ def download_file(filename):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+     port = int(os.environ.get("PORT", 5000))
+     app.run(host="0.0.0.0", port=port)

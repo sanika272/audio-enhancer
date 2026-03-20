@@ -1,0 +1,7 @@
+Flask
+flask-cors
+pydub
+numpy
+soundfile
+noisereduce
+scipy
